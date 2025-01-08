@@ -1,18 +1,27 @@
-import smtplib, ssl
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import os
+import smtplib, ssl
 
+def send_email(body):
+    msg = MIMEMultipart()
+    msg['From'] = "useremail@example.com"  # Replace with your email
+    msg['To'] = "receiveremail@example.com"  # Replace with the recipient's email
+    msg['Subject'] = "Today's Positive News"
 
-def send_email(message):
-    host = "smtp.gmail.com"
-    port = 465
+    # Attach the body as plain text
+    msg.attach(MIMEText(body, 'plain'))
 
-    user_name = "reema5khamassi@gmail.com"
-    password = os.getenv("PASSWORD")
-
-    receiver = "reema5khamassi@gmail.com"
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP_SSL(host, port, context=context) as server:
-        server.login(user_name,password)
-        server.sendmail(user_name, receiver, message)
+    # Set up the server and send the email
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()  # Secure the connection
+        server.login("reema5khamassi@gmail.com",
+                     os.getenv("PASSWORD"))  # Replace with your email credentials
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+        server.quit()
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
